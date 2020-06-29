@@ -14,7 +14,8 @@ app.use('/images', express.static('assets/images'));
 
 //Mongo Access
 const mongoose = require('mongoose');
-mongoose.connect(process.env.DB_URI, {
+mongoose
+	.connect(process.env.DB_URI, {
 		auth: {
 			user: process.env.DB_USER,
 			password: process.env.DB_PASS,
@@ -22,16 +23,43 @@ mongoose.connect(process.env.DB_URI, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 	})
-    .catch((err) => console.error(`Error: ${err}`));
-    
+	.catch((err) => console.error(`Error: ${err}`));
+
 //Implement Body Parser
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Setup our session
+const session = require('express-session');
+app.use(
+	session({
+		secret: 'any salty secret here',
+		resave: true,
+		saveUninitialized: false,
+	})
+);
+
+//Setup flash notification
+const flash = require('connect-flash');
+app.use(flash());
+app.use('/', (req, res, next) => {
+	//Setting default locals
+	res.locals.pageTitle = 'Untited';
+
+	// Passing along flash messages
+	res.locals.flash = req.flash();
+	res.locals.formData = req.session.formData || {};
+	req.session.formData = {};
+
+	next();
+});
 
 // Our routes
 const routes = require('./routes.js');
+const { appendFile, read } = require('fs');
 app.use('/', routes);
 
 //Start out server
-app.listen(process.env.PORT || 3000, (port) => console.log(`Listening on port ${port}`));
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Listening on port ${port}`));
