@@ -4,26 +4,17 @@ require('dotenv').config();
 
 const path = require('path');
 
-//Set our views directory
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-app.use('/css', express.static('assets/css'));
-app.use('/javascript', express.static('assets/javascript'));
-app.use('/images', express.static('assets/images'));
-
 //Mongo Access
 const mongoose = require('mongoose');
-mongoose
-	.connect(process.env.DB_URI, {
-		auth: {
-			user: process.env.DB_USER,
-			password: process.env.DB_PASS,
-		},
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-	})
-	.catch((err) => console.error(`Error: ${err}`));
+mongoose.connect(process.env.DB_URI, {
+	auth: {
+		user: process.env.DB_USER,
+		password: process.env.DB_PASS,
+	},
+	useNewUrlParser: true,
+	useUnifiedTopology: true,
+	useCreateIndex: true,
+}).catch((err) => console.error(`Error: ${err}`));
 
 //Implement Body Parser
 const bodyParser = require('body-parser');
@@ -31,6 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Setup our session
+const passport = require('passport');
 const session = require('express-session');
 app.use(
 	session({
@@ -40,7 +32,23 @@ app.use(
 	})
 );
 
-//Setup flash notification
+//Setting up passport
+app.use(passport.initialize());
+app.use(passport.session());
+const User = require('./models/user');
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//Set our views directory
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use('/css', express.static('assets/css'));
+app.use('/javascript', express.static('assets/javascript'));
+app.use('/images', express.static('assets/images'));
+
+//Setup flash notification and defaults
 const flash = require('connect-flash');
 app.use(flash());
 app.use('/', (req, res, next) => {
@@ -52,14 +60,29 @@ app.use('/', (req, res, next) => {
 	res.locals.formData = req.session.formData || {};
 	req.session.formData = {};
 
+	//Authentication helper
+	res.locals.authorized = req.isAuthenticated();
+	if (res.locals.authorized) res.locals.email = req.session.passport.user;
+
 	next();
 });
 
+
 // Our routes
 const routes = require('./routes.js');
-const { appendFile, read } = require('fs');
-app.use('/', routes);
+app.use('/api', routes);
+
+app.get('/test', (req, res) => {
+	res.status(200).json({message: 'Hello'});
+});
+
+const clientRoot = path.join(__dirname, '/client/build');
+app.use((req, res, next) => {
+	if (req.method === 'GET' && req.accepts('html') && !req.is('json') && !req.path.includes('.')) {
+		res.sendFile('index.html', { clientRoot });
+	} else next();
+});
 
 //Start out server
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Listening on port ${port}`));

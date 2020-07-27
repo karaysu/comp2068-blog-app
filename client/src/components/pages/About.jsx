@@ -1,0 +1,26 @@
+import React from 'react';
+import { Container } from 'react-bootstrap';
+
+function About() {
+	return (
+		<Container className="my-5">
+			<header className="jumbotron">
+				<h1>All About Me</h1>
+			</header>
+
+			<div>
+				<p>
+					I am Raman Deep Singh <br />I am a Computer Programming student since 2018. I am currently
+					studying programming in Canada. <br />
+					I am thoroughly enjoying and want to keep increasing my skills and knowledge so I can work
+					and contribute to the field of technology. <br />
+					Technology is embedding itself into our everyday life and knowing how technology work is
+					fascinating and intriguing. I feel lucky to have the opportunity to learn that. <br />
+					You can learn more about me along with my projects by contacting me!
+				</p>
+			</div>
+		</Container>
+	);
+}
+
+export default About;
