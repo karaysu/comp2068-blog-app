@@ -6,15 +6,17 @@ const path = require('path');
 
 //Mongo Access
 const mongoose = require('mongoose');
-mongoose.connect(process.env.DB_URI, {
-	auth: {
-		user: process.env.DB_USER,
-		password: process.env.DB_PASS,
-	},
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
-	useCreateIndex: true,
-}).catch((err) => console.error(`Error: ${err}`));
+mongoose
+	.connect(process.env.DB_URI, {
+		auth: {
+			user: process.env.DB_USER,
+			password: process.env.DB_PASS,
+		},
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useCreateIndex: true,
+	})
+	.catch((err) => console.error(`Error: ${err}`));
 
 //Implement Body Parser
 const bodyParser = require('body-parser');
@@ -67,22 +69,19 @@ app.use('/', (req, res, next) => {
 	next();
 });
 
-
 // Our routes
 const routes = require('./routes.js');
 app.use('/api', routes);
 
 app.get('/test', (req, res) => {
-	res.status(200).json({message: 'Hello'});
+	res.status(200).json({ message: 'Hello World' });
 });
 
-const clientRoot = path.join(__dirname, '/client/build');
-app.use((req, res, next) => {
-	if (req.method === 'GET' && req.accepts('html') && !req.is('json') && !req.path.includes('.')) {
-		res.sendFile('index.html', { clientRoot });
-	} else next();
+app.use(express.static(path.join(__dirname, 'client/build')));
+app.get('*', (req, res) => {
+	res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });
 
-//Start out server
+// Start our server
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Listening on port ${port}`));
