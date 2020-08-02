@@ -5,59 +5,48 @@ import { Form, Container } from 'react-bootstrap';
 import { Redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const Register = ({setUser}) => {
-  const [inputs, setInputs] = useState({
+const Register = () => {
+	const [inputs, setInputs] = useState({
     firstName: '',
     lastName: '',
     email: '',
     emailConfirmation: '',
     password: '',
     passwordConfirmation: ''
-  });
+	});
 
-  const [redirect, setRedirect] = useState(false);
+	const [redirect, setRedirect] = useState(false);
 
-  const handleSubmit = async event => {
-    event.preventDefault();
+	const handleSubmit = async (event) => {
+		event.preventDefault();
 
-    try {
-      const resp = await Axios.post('/api/users', inputs);
+		try {
+			const resp = await Axios.post('/api/users', inputs);
 
-      if (resp.status === 200) {
-        setUser(resp.data.user);
-        sessionStorage.setItem('user', JSON.stringify(resp.data.user));
-        toast('You have registered successfully and been logged in.', {
-          type: toast.TYPE.SUCCESS
-        });
-        setRedirect(true);
-      } else {
-        toast("There was an issue registering you.", {
-          type: toast.TYPE.ERROR
-        });
-      }
-    } catch (error) {
-      toast("There was an issue registering you.", {
-        type: toast.TYPE.ERROR
-      });
-    }
-  };
+			if (resp.status === 200) {
+				toast('You have registered successfully', {
+					type: toast.TYPE.SUCCESS,
+				});
+				setRedirect(true);
+			}
+		} catch (error) {
+			toast('There was an issue registering you. Please check your credentials.', {
+				type: toast.TYPE.ERROR,
+			});
+		}
+	};
 
-  const handleInputChange = event => {
-    event.persist();
+	const handleInputChange = (event) => {
+		event.persist();
 
-    const {name, value} = event.target;
+		const { name, value } = event.target;
 
-    setInputs(inputs => ({
-      ...inputs,
-      [name]: value
-    }));
-  };
+		setInputs((inputs) => ({ ...inputs, [name]: value }));
+	};
 
-  if (redirect) {
-    return (<Redirect to="/"/>);
-  }
+	if (redirect) return <Redirect to="/login" />;
 
-  return (
+	return (
     <Container className="my-5">
       <header>
         <h1>Register</h1>

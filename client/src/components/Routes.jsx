@@ -16,12 +16,8 @@ function Routes({ user, setUser }) {
 		<Switch>
 			<Route exact path="/" component={Home} />
 			<Route exact path="/about" component={About} />
-      <Route exact path="/register" render={
-        renderProps => <Register
-          {...renderProps}
-          setUser={setUser}
-        />
-      }/>			<Route
+			<Route exact path="/register" component={Register} />
+			<Route
 				exact
 				path="/login"
 				render={(renderProps) => <Login {...renderProps} setUser={setUser} />}
