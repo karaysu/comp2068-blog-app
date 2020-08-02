@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Login from './sessions/Login';
 import Logout from './sessions/Logout';
+import Register from './users/Register';
 
 import Blogs from './blogs/Index';
 import NewBlog from './blogs/New';
@@ -15,7 +16,12 @@ function Routes({ user, setUser }) {
 		<Switch>
 			<Route exact path="/" component={Home} />
 			<Route exact path="/about" component={About} />
-			<Route
+      <Route exact path="/register" render={
+        renderProps => <Register
+          {...renderProps}
+          setUser={setUser}
+        />
+      }/>			<Route
 				exact
 				path="/login"
 				render={(renderProps) => <Login {...renderProps} setUser={setUser} />}

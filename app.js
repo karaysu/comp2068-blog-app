@@ -73,10 +73,6 @@ app.use('/', (req, res, next) => {
 const routes = require('./routes.js');
 app.use('/api', routes);
 
-app.get('/test', (req, res) => {
-	res.status(200).json({ message: 'Hello World' });
-});
-
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.get('*', (req, res) => {
 	res.sendFile(path.join(__dirname + '/client/build/index.html'));
